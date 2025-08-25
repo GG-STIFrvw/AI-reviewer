@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Reviewer Quiz</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <h1>AI Reviewer Quiz</h1>
+    <p class="subtitle">Upload your notes (PDF, Word, or TXT) and let AI create your reviewer.</p>
+
+    <!-- Upload Section -->
+    <div class="upload-section">
+      <input type="file" id="uploadFile" accept=".pdf,.docx,.txt">
+      <button id="uploadBtn" onclick="uploadFile()">Upload & Generate Reviewer</button>
+      <div id="timer"></div>
+    </div>
+
+    <!-- Quiz -->
+    <div class="quiz">
+      <h2 id="question">Loading question...</h2>
+      <div id="answer-buttons" class="btn-grid"></div>
+    </div>
+
+    <!-- Next Button -->
+    <button id="next-btn">Next</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
