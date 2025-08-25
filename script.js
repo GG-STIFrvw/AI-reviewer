@@ -134,7 +134,7 @@ let questions = [
         timerElement.textContent = "";
         uploadBtn.disabled = false;
         console.error(err);
-        alert("Something went wrong.");
+        alert("An unexpected error occurred. Please try again later.");
       });
   }
   

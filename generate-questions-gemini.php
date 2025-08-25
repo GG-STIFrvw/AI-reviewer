@@ -4,7 +4,11 @@ require __DIR__ . '/vendor/autoload.php';
 use PhpOffice\PhpWord\IOFactory;
 use Smalot\PdfParser\Parser;
 
-$apiKey = "AIzaSyDr8ivB6oix71tNFuJbGAFYn9KtwdmHs0o"; // Replace with your Gemini API key
+// Load environment variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+$apiKey = $_ENV['GEMINI_API_KEY'];
 
 if (!isset($_FILES['file'])) {
     http_response_code(400);
@@ -12,9 +16,35 @@ if (!isset($_FILES['file'])) {
     exit;
 }
 
-$fileTmp = $_FILES['file']['tmp_name'];
-$fileName = $_FILES['file']['name'];
+$file = $_FILES['file'];
+
+// File size check (10MB)
+if ($file['size'] > 10 * 1024 * 1024) {
+    http_response_code(400);
+    echo json_encode(["error" => "File is too large. Maximum size is 10MB."]);
+    exit;
+}
+
+$fileTmp = $file['tmp_name'];
+$fileName = $file['name'];
 $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+// MIME type check
+$finfo = finfo_open(FILEINFO_MIME_TYPE);
+$mimeType = finfo_file($finfo, $fileTmp);
+finfo_close($finfo);
+
+$allowedMimeTypes = [
+    'txt' => 'text/plain',
+    'pdf' => 'application/pdf',
+    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
+if (!in_array($mimeType, $allowedMimeTypes) || !array_key_exists($ext, $allowedMimeTypes) || $allowedMimeTypes[$ext] !== $mimeType) {
+    http_response_code(400);
+    echo json_encode(["error" => "Unsupported file type. Please upload a TXT, PDF, or DOCX file."]);
+    exit;
+}
 
 $text = "";
 
@@ -34,8 +64,6 @@ try {
         $parser = new Parser();
         $pdf = $parser->parseFile($fileTmp);
         $text = $pdf->getText();
-    } else {
-        throw new Exception("Unsupported file type");
     }
 } catch (Exception $e) {
     http_response_code(500);
